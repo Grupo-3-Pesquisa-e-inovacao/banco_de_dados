@@ -35,9 +35,9 @@ INSERT INTO processo (`idProcesso`, `nome`, `status_proc`, `tempo_execucao`, `da
 -- INSERT COMPONENTE
 INSERT INTO componente (`idComponente`, `nome`, `descricao`, `fk_maquina_proc`) 
 						VALUES (NULL, "CPU", NULL, 1),
-						       (NULL, "Rede", NULL, 2),
-							   (NULL, "Ram", NULL, 3),
-                               (NULL, "Disco", NULL, 4);
+						       (NULL, "Rede", NULL, 1),
+							   (NULL, "Ram", NULL, 1),
+                               (NULL, "Disco", NULL, 1);
 
 -- INSERT CAPTURA DE DADOS 
 INSERT INTO captura_dados (`idCaptura`, `nome_monitoramento`, `valor_monitorado`, `data_hora`, `fk_componente`, `fk_maquina_captura`) 

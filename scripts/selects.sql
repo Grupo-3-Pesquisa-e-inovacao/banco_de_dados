@@ -10,3 +10,10 @@ SELECT notificacao.data_hora AS "DataHora",
       JOIN maquina ON notificacao.fk_maquina_notf = maquina.idMaquina
       JOIN componente ON notificacao.fk_componente_notf = componente.idComponente
       JOIN captura_dados AS captura ON componente.idComponente = captura.fk_componente;
+      
+SELECT * FROM maquina WHERE idMaquina = 2;
+
+SELECT * FROM captura_dados;
+
+SELECT * FROM maquina;
+SELECT * FROM componente;
