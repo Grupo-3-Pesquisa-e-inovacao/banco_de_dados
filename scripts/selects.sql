@@ -17,3 +17,9 @@ SELECT * FROM captura_dados;
 
 SELECT * FROM maquina;
 SELECT * FROM componente;
+
+SELECT * FROM tipo_dados;
+SELECT idTipoDados FROM	tipo_dados WHERE nome = ?;
+
+INSERT INTO captura_dados (`valor_monitorado`, `fk_tiposDados`, `fk_maquina`, `fk_componente`, `fk_tipoComponente`)
+			VALUES (?, ?, ?, ?, ?);

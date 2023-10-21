@@ -1,7 +1,6 @@
 CREATE DATABASE safe_monitor;
 USE safe_monitor;
 
-
 CREATE TABLE empresa (
    IdEmpresa INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
    nome_empresa VARCHAR(255) NOT NULL,
@@ -69,58 +68,88 @@ CREATE TABLE maquina (
 );
 
 
+CREATE TABLE IF NOT EXISTS janela (
+  idJanela INT NOT NULL AUTO_INCREMENT,
+  pid INT NULL,
+  titulos TEXT NULL,
+  comandos TEXT NULL,
+  dt_hora DATETIME default current_timestamp,
+  fk_maquina INT NOT NULL,
+  PRIMARY KEY (idJanela, fk_maquina),
+  CONSTRAINT const_fk_maquina FOREIGN KEY (fk_maquina)REFERENCES maquina (idMaquina)
+);
+
+
 
 CREATE TABLE processo (
-   idProcesso INT NOT NULL AUTO_INCREMENT,
-   nome VARCHAR(45) NULL,
-   status_proc  VARCHAR(45) NULL,
-   tempo_execucao VARCHAR(45) NULL,
-   data_hora DATETIME NULL,
-   fk_maquina INT NOT NULL,
-   CONSTRAINT const_fkMaquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina),
-   PRIMARY KEY (idProcesso, fk_maquina)
-);
+  idProcesso INT NOT NULL AUTO_INCREMENT,
+  pid INT NULL,
+  nome VARCHAR(80) NULL,
+  usoCPU DECIMAL(5,2) NULL,
+  bytesUtilizados DECIMAL(5,2) NULL,
+  dt_hora DATETIME default current_timestamp,
+  fk_maquina INT NOT NULL,
+  PRIMARY KEY (idProcesso, fk_maquina),
+  CONSTRAINT const_fkMaquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina));
+
 
 CREATE TABLE  componente (
-  idComponente INT NOT NULL AUTO_INCREMENT,
+  idComponente INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NULL,
-  descricao TEXT NULL,
-  fk_maquina_proc INT NOT NULL,
-  CONSTRAINT const_fkMaquina1_proc FOREIGN KEY (fk_maquina_proc) REFERENCES maquina (idMaquina),
-  PRIMARY KEY (idComponente, fk_maquina_proc)
+  descricao TEXT NULL
 );
 
-CREATE TABLE captura_dados(
-   idCaptura INT NOT NULL AUTO_INCREMENT,
-   nome_monitoramento VARCHAR(45) NULL,
-   valor_monitorado DECIMAL NULL,
-   data_hora DATETIME NULL,
-   fk_componente INT NOT NULL,
-   fk_maquina_captura INT NOT NULL,
-   PRIMARY KEY (idCaptura, fk_componente, fk_maquina_captura),
-   CONSTRAINT const_fkComponente FOREIGN KEY (fk_componente) REFERENCES componente (idComponente),
-   CONSTRAINT const_fkMaquinaCaptura FOREIGN KEY (fk_maquina_captura) REFERENCES maquina (idMaquina)
-);
+CREATE TABLE  tipo_componente (
+  fk_componente INT NOT NULL,
+  fk_maquina INT NOT NULL,
+  PRIMARY KEY (fk_componente, fk_maquina),
+  CONSTRAINT const_tipoComponente_fkMaquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina),
+  CONSTRAINT const_fkComponente FOREIGN KEY (fk_componente) REFERENCES componente(idComponente));
 
-
-CREATE TABLE tipo_notificacao (
+  CREATE TABLE tipo_dados (
+  idTipoDados INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(45) NULL,
+  limite_inicial DECIMAL(5,2) NULL,
+  limite_final DECIMAL(5,2) NULL
+  );
+  
+  
+CREATE TABLE captura_dados (
+  idCaptura INT NOT NULL AUTO_INCREMENT,
+  valor_monitorado DECIMAL(5,2) NULL,
+  dt_hora DATETIME default current_timestamp,
+  fk_componente INT NOT NULL,
+  fk_maquina INT NOT NULL,
+  fk_tiposDados INT NOT NULL,
+  PRIMARY KEY (idCaptura, fk_componente, fk_maquina, fk_tiposDados),
+  CONSTRAINT const_captura_fk_componente FOREIGN KEY (fk_componente) REFERENCES tipo_componente (fk_componente),
+  CONSTRAINT const_fk_maquinaCaptura FOREIGN KEY (fk_maquina) REFERENCES tipo_componente (fk_maquina),
+  CONSTRAINT const_fk_tipoDdos FOREIGN KEY (fk_tiposDados) REFERENCES tipo_dados (idTipoDados));
+  
+  
+CREATE TABLE tipo_notificacao(
   idTipo_notificacao INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NULL,
-  valor_inicial DECIMAL NULL,
-  valor_final DECIMAL NULL
-  );
-   
-CREATE TABLE notificacao (
-   id_notificacao INT NOT NULL,
-   data_hora DATETIME default current_timestamp,
-   fk_TipoNotificacao INT NOT NULL,
-   fk_componente_notf INT NOT NULL,
-   fk_maquina_notf  INT NOT NULL,
-   PRIMARY KEY (id_notificacao, fk_TipoNotificacao, fk_componente_notf, fk_maquina_notf),
-   CONSTRAINT  const_fk_tipo_notificacao FOREIGN KEY (fk_TipoNotificacao) REFERENCES tipo_notificacao (idTipo_notificacao),
-   CONSTRAINT  const_fk_componente_nt FOREIGN KEY (fk_componente_notf) REFERENCES componente (idComponente),
-   CONSTRAINT  const_fk_maquina_nt FOREIGN KEY (fk_maquina_notf) REFERENCES maquina (idMaquina)
+  cor VARCHAR(6) NULL
 );
+
+CREATE TABLE notificacao (
+  data_hora DATETIME default current_timestamp,
+  fk_tipoNotificacao INT NOT NULL,
+  fk_Captura INT NOT NULL,
+  fk_captura_tiposDados INT NOT NULL,
+  fk_captura_maquina INT NOT NULL,
+  fk_captura_componente INT NOT NULL,
+  PRIMARY KEY (fk_tipoNotificacao, fk_Captura, fk_captura_tiposDados, fk_captura_maquina, fk_captura_componente),
+  CONSTRAINT fk_notificacao_tipoNotificacao FOREIGN KEY (fk_tipoNotificacao) REFERENCES tipo_notificacao (idTipo_notificacao),
+  CONSTRAINT fk_notificacao_captura FOREIGN KEY (fk_Captura) REFERENCES captura_dados (idCaptura),
+  CONSTRAINT fk_notificacao_tipoDados FOREIGN KEY (fk_captura_tiposDados ) REFERENCES captura_dados (fk_tiposDados),
+  CONSTRAINT fk_notificacao_maquina FOREIGN KEY (fk_captura_maquina) REFERENCES captura_dados (fk_maquina),
+  CONSTRAINT fk_notificacao_componente FOREIGN KEY (fk_captura_componente) REFERENCES captura_dados (fk_componente)
+);
+
+
+
 
 
 
