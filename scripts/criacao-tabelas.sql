@@ -67,6 +67,15 @@ CREATE TABLE maquina (
    CONSTRAINT const_fkSala FOREIGN KEY (fk_sala) REFERENCES sala_de_aula (idSala)
 );
 
+CREATE TABLE historico_usuarios (
+  idHistoricoUsuario INT NOT NULL AUTO_INCREMENT,
+  fk_usuario INT NOT NULL,
+  fk_maquina INT NOT NULL,
+  data_hora DATETIME default current_timestamp,
+  PRIMARY KEY (idHistoricoUsuario, fk_usuario, fk_maquina),
+  CONSTRAINT  FOREIGN KEY (fk_usuario) REFERENCES usuario (idUsuario),
+  CONSTRAINT fk_historicoUsuarios_maquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina));
+  
 
 CREATE TABLE IF NOT EXISTS janela (
   idJanela INT NOT NULL AUTO_INCREMENT,
