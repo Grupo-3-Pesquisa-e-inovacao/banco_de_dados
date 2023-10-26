@@ -59,13 +59,15 @@ CREATE TABLE maquina (
    numero_serie VARCHAR(15) NULL,
    marca  VARCHAR(30) NULL,
    sistema_operacional VARCHAR(15) NULL,
-   armazenamento_disco DECIMAL NULL,
-   espaco_livre_disco DECIMAL NULL,
-   endereco_ipv4 VARCHAR(13) NULL,
-   capacidade_total_ram DECIMAL NULL,
+   arquitetura INT NULL,
+   fabricante VARCHAR(50) NULL,
    fk_sala INT NOT NULL,
    CONSTRAINT const_fkSala FOREIGN KEY (fk_sala) REFERENCES sala_de_aula (idSala)
 );
+
+
+use safe_monitor;
+DESC captura_dados; 
 
 CREATE TABLE historico_usuarios (
   idHistoricoUsuario INT NOT NULL AUTO_INCREMENT,
@@ -125,7 +127,7 @@ CREATE TABLE  tipo_componente (
   
 CREATE TABLE captura_dados (
   idCaptura INT NOT NULL AUTO_INCREMENT,
-  valor_monitorado DECIMAL(5,2) NULL,
+  valor_monitorado DECIMAL(7,2) NULL,
   dt_hora DATETIME default current_timestamp,
   fk_componente INT NOT NULL,
   fk_maquina INT NOT NULL,

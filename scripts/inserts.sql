@@ -8,10 +8,9 @@ SELECT * FROM empresa;
 
 -- INSERIR DADOS USUÁRIO
 INSERT INTO usuario (`email`, `senha`, `nome`, `cargo`, `cadastrar`, `leitura`, `alterar`, `deletar`, `capturar`, `fk_empresa`) 
-	VALUES  ("admin@gmail.com", "12345", "Alessandro", "Presidente", 1, 1, 1, 1, 0, 1),
-		    ("funcionario@sptech.school", "12345", "Marcio", "Administrador de TI", 1, 1, 0, 0, 0, 1),
-		    ("professor@sptech.school", "12345", "Eduardo", "Professor", 0, 1, 0, 0, 0, 1),
-			("melissa@sptech.school", "12345", NULL, NULL, 0, 0, 0, 0, 1, 1);
+	VALUES  ("admin@gmail.com", "12345", "Alessandro", "Presidente", 1, 1, 1, 1, 1, 1),
+		    ("admin@sptech.school", "12345", "Marcio", "Administrador de TI", 1, 1, 1, 1, 1, 1),
+			("melissa@sptech.school", "12345", "Melissa", NULL, 0, 0, 0, 0, 1, 1);
 SELECT * FROM usuario;
 
 INSERT INTO sala_de_aula (`nome`, `localizacao`, `fk_usuario`) 
