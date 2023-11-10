@@ -13,19 +13,19 @@ INSERT INTO usuario (`email`, `senha`, `nome`, `cargo`, `cadastrar`, `leitura`, 
 			("melissa@sptech.school", "12345", "Melissa", NULL, 0, 0, 0, 0, 1, 1);
 SELECT * FROM usuario;
 
-INSERT INTO sala_de_aula (`nome`, `localizacao`, `fk_usuario`) 
-	VALUES ("Sala 1", "1° andar", 2),
-	       ("Sala 5", "6° andar, lado B", 3);
+INSERT INTO sala_de_aula (nome, localizacao, fk_usuario, fk_empresa) 
+	VALUES ("Sala 1", "1° andar", 2, 1),
+	       ("Sala 5", "6° andar, lado B", 3, 1);
            
            
 SELECT * FROM sala_de_aula;
 
 -- INSERTS MAQUINAS 
-INSERT INTO maquina (`idMaquina`, `modelo`, `numero_serie`, `marca`, `fk_sala`) 
-VALUES (NULL, 'Modelo1', 'Serie1', 'Marca1',  1),
-       (NULL, 'Modelo2', 'Serie2', 'Marca2',  2),
-       (NULL, 'Modelo3', 'Serie3', 'Marca3',  1),
-       (NULL, 'Modelo4', 'Serie4', 'Marca4', 2);
+INSERT INTO maquina (`idMaquina`, `modelo`, `numero_serie`, `marca`, `fk_sala`, `fk_empresa`) 
+VALUES (NULL, 'Modelo1', 'Serie1', 'Marca1',  1, 1),
+       (NULL, 'Modelo2', 'Serie2', 'Marca2',  2, 1),
+       (NULL, 'Modelo3', 'Serie3', 'Marca3',  1, 1),
+       (NULL, 'Modelo4', 'Serie4', 'Marca4', 2, 1);
 
 
 -- INSERT COMPONENTE

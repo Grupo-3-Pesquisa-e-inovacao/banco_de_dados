@@ -48,7 +48,9 @@ CREATE TABLE sala_de_aula (
    nome VARCHAR(45) NOT NULL,
    localizacao TEXT NOT NULL,
    fk_usuario INT NOT NULL,
-   CONSTRAINT const_fkUsuario FOREIGN KEY (fk_usuario)  REFERENCES usuario(idUsuario)
+   fk_empresa INT NOT NULL,
+   CONSTRAINT const_fkUsuario FOREIGN KEY (fk_usuario)  REFERENCES usuario(idUsuario),
+   CONSTRAINT const_sala_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa)
   );
 
 
@@ -62,12 +64,10 @@ CREATE TABLE maquina (
    arquitetura INT NULL,
    fabricante VARCHAR(50) NULL,
    fk_sala INT NOT NULL,
-   CONSTRAINT const_fkSala FOREIGN KEY (fk_sala) REFERENCES sala_de_aula (idSala)
+   fk_empresa INT NOT NULL,
+   CONSTRAINT const_fkSala FOREIGN KEY (fk_sala) REFERENCES sala_de_aula (idSala),
+   CONSTRAINT const_maquina_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa)
 );
-
-
-use safe_monitor;
-DESC captura_dados; 
 
 CREATE TABLE historico_usuarios (
   idHistoricoUsuario INT NOT NULL AUTO_INCREMENT,
@@ -85,8 +85,11 @@ CREATE TABLE IF NOT EXISTS janela (
   titulos TEXT NULL,
   comandos TEXT NULL,
   dt_hora DATETIME default current_timestamp,
+  stt VARCHAR(20),
+  matar TINYINT(1) NULL, 
   fk_maquina INT NOT NULL,
   PRIMARY KEY (idJanela, fk_maquina),
+  CONSTRAINT chk_stt CHECK (stt IN ("Fechada", "Aberta")),
   CONSTRAINT const_fk_maquina FOREIGN KEY (fk_maquina)REFERENCES maquina (idMaquina)
 );
 
@@ -158,6 +161,8 @@ CREATE TABLE notificacao (
   CONSTRAINT fk_notificacao_maquina FOREIGN KEY (fk_captura_maquina) REFERENCES captura_dados (fk_maquina),
   CONSTRAINT fk_notificacao_componente FOREIGN KEY (fk_captura_componente) REFERENCES captura_dados (fk_componente)
 );
+
+SHOW TABLES;
 
 
 
