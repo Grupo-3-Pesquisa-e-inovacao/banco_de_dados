@@ -97,8 +97,6 @@ CREATE TABLE IF NOT EXISTS janela (
   CONSTRAINT const_fk_maquina FOREIGN KEY (fk_maquina)REFERENCES maquina (idMaquina) ON DELETE CASCADE
 );
 
-SELECT * FROM usuario;
-
 CREATE TABLE IF NOT EXISTS tipo_componente (
   `idTipoComponente` INT NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(45) NULL,
