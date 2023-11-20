@@ -11,14 +11,12 @@ INSERT INTO usuario (`email`, `senha`, `nome`, `cargo`, `cadastrar`, `leitura`, 
 	VALUES  ("admin@gmail.com", "12345", "Alessandro", "Presidente", 1, 1, 1, 1, 1, 1),
 		    ("admin@sptech.school", "12345", "Marcio", "Administrador de TI", 1, 1, 1, 1, 1, 1),
 			("melissa@sptech.school", "12345", "Melissa", NULL, 0, 0, 0, 0, 1, 1);
-SELECT * FROM usuario;
+
 
 INSERT INTO sala_de_aula (nome, localizacao, fk_usuario, fk_empresa) 
 	VALUES ("Sala 1", "1° andar", 2, 1),
 	       ("Sala 5", "6° andar, lado B", 3, 1);
            
-           
-SELECT * FROM sala_de_aula;
 
 -- INSERTS MAQUINAS 
 INSERT INTO maquina (`idMaquina`, `modelo`, `numero_serie`, `marca`, `fk_sala`, `fk_empresa`) 
@@ -26,31 +24,29 @@ VALUES (NULL, 'Modelo1', 'Serie1', 'Marca1',  1, 1),
        (NULL, 'Modelo2', 'Serie2', 'Marca2',  2, 1),
        (NULL, 'Modelo3', 'Serie3', 'Marca3',  1, 1),
        (NULL, 'Modelo4', 'Serie4', 'Marca4', 2, 1);
+       
+UPDATE maquina SET endereco_mac = 1 WHERE idMaquina = 1;
 
 
+-- INSERT TIPO COMPONENTE
+INSERT INTO tipo_componente (`nome`) VALUES ("Processador"), ("Ram"), ("Disco");
+
+DESC componente;
 -- INSERT COMPONENTE
-INSERT INTO componente (`nome`) VALUES ("Processador"),
-										("Rede"),
-										("Ram"),
-										("Disco");
-SELECT * FROM componente WHERE nome = "Rede";
-
-									
--- INSERT TIPO COMPONENTES
-INSERT INTO tipo_componente (`fk_componente`, `fk_maquina`) VALUES (1, 1), (2, 1), (3, 1), (4,1);
-INSERT INTO tipo_componente (`fk_componente`, `fk_maquina`) VALUES (1, 2), (2, 2), (3, 2), (4,2);
-INSERT INTO tipo_componente (`fk_componente`, `fk_maquina`) VALUES (1, 3), (2, 3), (3, 3), (4,3);
-INSERT INTO tipo_componente (`fk_componente`, `fk_maquina`) VALUES (1, 4), (2, 4), (3, 4), (4,4);
+INSERT INTO componente (`fk_tipoComponente`, `fk_maquina`) VALUES (1, 1), (2, 1), (3, 1);
+INSERT INTO componente (`fk_tipoComponente`, `fk_maquina`) VALUES (1, 2), (2, 2), (3, 2);
+INSERT INTO componente (`fk_tipoComponente`, `fk_maquina`) VALUES (1, 3), (2, 3), (3, 3);
+INSERT INTO componente (`fk_tipoComponente`, `fk_maquina`) VALUES (1, 4), (2, 4), (3, 4);
 
 
-INSERT INTO tipo_dados(`nome`) 
-					VALUES ("Uso CPU"),
-						   ("Uso Disco"),
-						   ("Uso Ram"),
-						   ("Pacotes Enviados"),
-                           ("Pacotes Recibidos");
-                           
-SELECT * FROM tipo_dados;
+INSERT INTO tipo_dados(`nome`) VALUES ("Uso");
+
 
                                
+
+SELECT * FROM tipo_componente;
+SELECT * FROM componente;
+SELECT * FROM maquina;
+SELECT * FROM captura_dados;
+
 

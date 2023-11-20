@@ -40,7 +40,7 @@ CREATE TABLE usuario (
    CONSTRAINT chk_alterar CHECK (alterar IN (0, 1)), 
    CONSTRAINT chk_deletar CHECK (deletar IN (0, 1)), 
    CONSTRAINT chk_capturar CHECK (capturar IN (0, 1)), 
-   CONSTRAINT const_fkEmpresa FOREIGN KEY (fk_empresa) REFERENCES empresa (IdEmpresa)
+   CONSTRAINT const_fkEmpresa FOREIGN KEY (fk_empresa) REFERENCES empresa (IdEmpresa) ON DELETE CASCADE
 );
 
 CREATE TABLE sala_de_aula (
@@ -49,8 +49,8 @@ CREATE TABLE sala_de_aula (
    localizacao TEXT NOT NULL,
    fk_usuario INT NOT NULL,
    fk_empresa INT NOT NULL,
-   CONSTRAINT const_fkUsuario FOREIGN KEY (fk_usuario)  REFERENCES usuario(idUsuario),
-   CONSTRAINT const_sala_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa)
+   CONSTRAINT const_fkUsuario FOREIGN KEY (fk_usuario)  REFERENCES usuario(idUsuario) ON DELETE NO ACTION,
+   CONSTRAINT const_sala_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa) ON DELETE CASCADE
   );
 
 
@@ -63,10 +63,14 @@ CREATE TABLE maquina (
    sistema_operacional VARCHAR(15) NULL,
    arquitetura INT NULL,
    fabricante VARCHAR(50) NULL,
+   ligada CHAR(1) NULL,
+   endereco_ipv4 VARCHAR(16), 
+   endereco_mac VARCHAR(18), 
    fk_sala INT NOT NULL,
    fk_empresa INT NOT NULL,
-   CONSTRAINT const_fkSala FOREIGN KEY (fk_sala) REFERENCES sala_de_aula (idSala),
-   CONSTRAINT const_maquina_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa)
+   CONSTRAINT chkLigada CHECK (ligada IN("S", "N")),
+   CONSTRAINT const_fkSala FOREIGN KEY (fk_sala) REFERENCES sala_de_aula (idSala) ON DELETE CASCADE,
+   CONSTRAINT const_maquina_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa) ON DELETE CASCADE
 );
 
 CREATE TABLE historico_usuarios (
@@ -75,8 +79,8 @@ CREATE TABLE historico_usuarios (
   fk_maquina INT NOT NULL,
   data_hora DATETIME default current_timestamp,
   PRIMARY KEY (idHistoricoUsuario, fk_usuario, fk_maquina),
-  CONSTRAINT  FOREIGN KEY (fk_usuario) REFERENCES usuario (idUsuario),
-  CONSTRAINT fk_historicoUsuarios_maquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina));
+  CONSTRAINT FOREIGN KEY (fk_usuario) REFERENCES usuario (idUsuario) ON DELETE CASCADE,
+  CONSTRAINT fk_historicoUsuarios_maquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina) ON DELETE CASCADE);
   
 
 CREATE TABLE IF NOT EXISTS janela (
@@ -90,35 +94,37 @@ CREATE TABLE IF NOT EXISTS janela (
   fk_maquina INT NOT NULL,
   PRIMARY KEY (idJanela, fk_maquina),
   CONSTRAINT chk_stt CHECK (stt IN ("Fechada", "Aberta")),
-  CONSTRAINT const_fk_maquina FOREIGN KEY (fk_maquina)REFERENCES maquina (idMaquina)
+  CONSTRAINT const_fk_maquina FOREIGN KEY (fk_maquina)REFERENCES maquina (idMaquina) ON DELETE CASCADE
 );
 
+SELECT * FROM usuario;
 
+CREATE TABLE IF NOT EXISTS tipo_componente (
+  `idTipoComponente` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NULL,
+  `decricao` TEXT NULL,
+  PRIMARY KEY (`idTipoComponente`));
 
-CREATE TABLE processo (
-  idProcesso INT NOT NULL AUTO_INCREMENT,
-  pid INT NULL,
-  nome VARCHAR(80) NULL,
-  usoCPU DECIMAL(5,2) NULL,
-  bytesUtilizados DECIMAL(5,2) NULL,
-  dt_hora DATETIME default current_timestamp,
-  fk_maquina INT NOT NULL,
-  PRIMARY KEY (idProcesso, fk_maquina),
-  CONSTRAINT const_fkMaquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina));
-
-
-CREATE TABLE  componente (
-  idComponente INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  nome VARCHAR(45) NULL,
-  descricao TEXT NULL
-);
-
-CREATE TABLE  tipo_componente (
-  fk_componente INT NOT NULL,
-  fk_maquina INT NOT NULL,
-  PRIMARY KEY (fk_componente, fk_maquina),
-  CONSTRAINT const_tipoComponente_fkMaquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina),
-  CONSTRAINT const_fkComponente FOREIGN KEY (fk_componente) REFERENCES componente(idComponente));
+CREATE TABLE IF NOT EXISTS componente (
+  `idComponente` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(255) NULL,
+  `modelo` VARCHAR(255) NULL,
+  `total` DECIMAL(6,2) NULL,
+  `fk_maquina` INT NOT NULL,
+  `fk_tipoComponente` INT NOT NULL,
+  PRIMARY KEY (`idComponente`, `fk_maquina`, `fk_tipoComponente`),
+  INDEX `fk_maquina_has_componente_componente1_idx` (`fk_tipoComponente` ASC) VISIBLE,
+  INDEX `fk_maquina_has_componente_maquina1_idx` (`fk_maquina` ASC) VISIBLE,
+  CONSTRAINT `fk_maquina_has_componente_maquina1`
+    FOREIGN KEY (`fk_maquina`)
+    REFERENCES maquina (`idMaquina`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_maquina_has_componente_componente1`
+    FOREIGN KEY (`fk_tipoComponente`)
+    REFERENCES tipo_componente (`idTipoComponente`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
   CREATE TABLE tipo_dados (
   idTipoDados INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -128,18 +134,27 @@ CREATE TABLE  tipo_componente (
   );
   
   
-CREATE TABLE captura_dados (
-  idCaptura INT NOT NULL AUTO_INCREMENT,
-  valor_monitorado DECIMAL(7,2) NULL,
-  dt_hora DATETIME default current_timestamp,
-  fk_componente INT NOT NULL,
-  fk_maquina INT NOT NULL,
-  fk_tiposDados INT NOT NULL,
-  PRIMARY KEY (idCaptura, fk_componente, fk_maquina, fk_tiposDados),
-  CONSTRAINT const_captura_fk_componente FOREIGN KEY (fk_componente) REFERENCES tipo_componente (fk_componente),
-  CONSTRAINT const_fk_maquinaCaptura FOREIGN KEY (fk_maquina) REFERENCES tipo_componente (fk_maquina),
-  CONSTRAINT const_fk_tipoDdos FOREIGN KEY (fk_tiposDados) REFERENCES tipo_dados (idTipoDados));
-  
+CREATE TABLE IF NOT EXISTS captura_dados (
+  `idCaptura` INT NOT NULL AUTO_INCREMENT,
+  `valor_monitorado` DECIMAL(5,2) NULL,
+  `dt_hora` DATETIME NULL,
+  `fk_tiposDados` INT NOT NULL,
+  `fk_maquina` INT NOT NULL,
+  `fk_componente` INT NOT NULL,
+  `fk_tipoComponente` INT NOT NULL,
+  PRIMARY KEY (`idCaptura`, `fk_tiposDados`, `fk_maquina`, `fk_componente`, `fk_tipoComponente`),
+  CONSTRAINT `fk_componente_has_tipoDados_tipoDados` FOREIGN KEY (`fk_tiposDados`) REFERENCES tipo_dados (`idTipoDados`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_captura_dados_maquina` FOREIGN KEY (`fk_maquina` )
+    REFERENCES componente (`fk_maquina` ),
+  CONSTRAINT `fk_captura_dados_tipo_componente` FOREIGN KEY ( `fk_tipoComponente` )
+    REFERENCES componente (`fk_tipoComponente`),
+  CONSTRAINT `fk_captura_dados_componente` FOREIGN KEY (`fk_componente`)
+    REFERENCES componente (`idComponente`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
   
 CREATE TABLE tipo_notificacao(
   idTipo_notificacao INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -147,26 +162,40 @@ CREATE TABLE tipo_notificacao(
   cor VARCHAR(6) NULL
 );
 
-CREATE TABLE notificacao (
-  data_hora DATETIME default current_timestamp,
-  fk_tipoNotificacao INT NOT NULL,
-  fk_Captura INT NOT NULL,
-  fk_captura_tiposDados INT NOT NULL,
-  fk_captura_maquina INT NOT NULL,
-  fk_captura_componente INT NOT NULL,
-  PRIMARY KEY (fk_tipoNotificacao, fk_Captura, fk_captura_tiposDados, fk_captura_maquina, fk_captura_componente),
-  CONSTRAINT fk_notificacao_tipoNotificacao FOREIGN KEY (fk_tipoNotificacao) REFERENCES tipo_notificacao (idTipo_notificacao),
-  CONSTRAINT fk_notificacao_captura FOREIGN KEY (fk_Captura) REFERENCES captura_dados (idCaptura),
-  CONSTRAINT fk_notificacao_tipoDados FOREIGN KEY (fk_captura_tiposDados ) REFERENCES captura_dados (fk_tiposDados),
-  CONSTRAINT fk_notificacao_maquina FOREIGN KEY (fk_captura_maquina) REFERENCES captura_dados (fk_maquina),
-  CONSTRAINT fk_notificacao_componente FOREIGN KEY (fk_captura_componente) REFERENCES captura_dados (fk_componente)
-);
-
+CREATE TABLE IF NOT EXISTS notificacao (
+  `data_hora` DATETIME NULL,
+  `fk_tipoNotificacao` INT NOT NULL,
+  `fk_captura_tiposDados` INT NOT NULL,
+  `fk_captura_maquina` INT NOT NULL,
+  `fk_captura_componente` INT NOT NULL,
+  `fk_captura` INT NOT NULL,
+  `fk_tipoComponente` INT NULL,
+  PRIMARY KEY (`fk_tipoNotificacao`, `fk_captura_tiposDados`, `fk_captura_maquina`, `fk_captura_componente`, `fk_captura`),
+  CONSTRAINT `fk_notificacao_tipo_notificacao1`
+    FOREIGN KEY (`fk_tipoNotificacao`) 
+    REFERENCES tipo_notificacao (`idTipo_notificacao`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_notificacao_captura_dados`
+    FOREIGN KEY (`fk_captura`)
+    REFERENCES captura_dados (`idCaptura`) ON DELETE NO ACTION ON UPDATE NO ACTION, 
+  CONSTRAINT `fk_notificacao_tipoDados`
+    FOREIGN KEY (`fk_captura_tiposDados`)
+    REFERENCES captura_dados (`fk_tiposDados`) ON DELETE NO ACTION ON UPDATE NO ACTION, 
+  CONSTRAINT `fk_notificacao_maquina`
+    FOREIGN KEY ( `fk_captura_maquina`)
+    REFERENCES captura_dados (`fk_maquina` ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_notificacao_componente`
+    FOREIGN KEY (`fk_captura_componente`)
+    REFERENCES captura_dados (`fk_componente`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_notificacao_tipoComonente`
+    FOREIGN KEY (`fk_tipoComponente`)
+    REFERENCES captura_dados (`fk_tipoComponente`) ON DELETE NO ACTION ON UPDATE NO ACTION
+    );
+    
 SHOW TABLES;
+SELECT idTipoDados as id, nome AS nome FROM tipo_dados WHERE nome = "Uso";
 
-
-
-
+SELECT idTipoComponente as id, nome AS nome FROM tipo_componente WHERE nome = "Processador";
+desc maquina;
 
 
 
