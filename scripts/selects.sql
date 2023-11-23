@@ -1,8 +1,27 @@
 USE safe_monitor;
+TRUNCATE TABLE janela;
+SELECT * FROM janela; 
+DESC janela;
+SELECT * FROM  maquina;
+
+UPDATE maquina SET hostName = "ooo" WHERE idMaquina = 9;
+TRUNCATE TABLE janela;
+DELETE FROM maquina WHERE idMaquina = 9;
+	DESC maquina;
+    
+
+DELETE FROM componente WHERE idComponente = 9;
+SELECT * FROM componente;
+SELECT * FROM tipo_dados;
+SELECT * FROM janela WHERE fk_maquina = 2 AND stt = 'Fechada';
+
+SELECT * FROM componente;
+
+
 -- CRUD USUÁRIOS
 -- AUTENTICAR 
 SELECT * FROM usuario WHERE email = "admin@gmail.com" AND senha = "12345";
-
+UPDATE janela SET matar = 1 WHERE idJanela = 9;
 -- LISTAR 
 SELECT * FROM usuario WHERE fk_empresa = 1;
 
@@ -51,5 +70,7 @@ select count(*) from maquina where fk_sala = 1;
 
 SELECT * FROM maquina WHERE fk_sala = 1;
 
-
+SELECT * FROM sala_de_aula;
+TRUNCATE TABLE janela;
+SELECT * FROM janela;
 
