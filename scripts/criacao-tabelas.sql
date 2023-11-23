@@ -56,6 +56,7 @@ CREATE TABLE sala_de_aula (
 
 CREATE TABLE maquina (
    idMaquina INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+   hostName VARCHAR(80) NOT NULL,
    nome VARCHAR(45),
    modelo VARCHAR(45) NULL,
    numero_serie VARCHAR(15) NULL,
@@ -73,6 +74,7 @@ CREATE TABLE maquina (
    CONSTRAINT const_maquina_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa) ON DELETE CASCADE
 );
 
+
 CREATE TABLE historico_usuarios (
   idHistoricoUsuario INT NOT NULL AUTO_INCREMENT,
   fk_usuario INT NOT NULL,
@@ -82,7 +84,7 @@ CREATE TABLE historico_usuarios (
   CONSTRAINT FOREIGN KEY (fk_usuario) REFERENCES usuario (idUsuario) ON DELETE CASCADE,
   CONSTRAINT fk_historicoUsuarios_maquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina) ON DELETE CASCADE);
   
-
+SELECT * FROM janela;
 CREATE TABLE IF NOT EXISTS janela (
   idJanela INT NOT NULL AUTO_INCREMENT,
   pid INT NULL,
@@ -96,6 +98,7 @@ CREATE TABLE IF NOT EXISTS janela (
   CONSTRAINT chk_stt CHECK (stt IN ("Fechada", "Aberta")),
   CONSTRAINT const_fk_maquina FOREIGN KEY (fk_maquina)REFERENCES maquina (idMaquina) ON DELETE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS tipo_componente (
   `idTipoComponente` INT NOT NULL AUTO_INCREMENT,
