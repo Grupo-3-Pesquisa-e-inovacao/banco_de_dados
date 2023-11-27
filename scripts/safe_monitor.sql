@@ -1,7 +1,7 @@
 CREATE DATABASE safe_monitor;
 USE safe_monitor;
 
-CREATE TABLE empresa (
+CREATE TABLE IF NOT EXISTS empresa (
    IdEmpresa INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
    nome_empresa VARCHAR(255) NOT NULL,
    cnpj VARCHAR(45) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE empresa (
    );
 
 
-CREATE TABLE usuario (
+CREATE TABLE IF NOT EXISTS usuario (
    idUsuario INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
    email  VARCHAR(120) NOT NULL,
    senha VARCHAR(30) NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE usuario (
    CONSTRAINT const_fkEmpresa FOREIGN KEY (fk_empresa) REFERENCES empresa (IdEmpresa) ON DELETE CASCADE
 );
 
-CREATE TABLE sala_de_aula (
+CREATE TABLE IF NOT EXISTS sala_de_aula (
    idSala INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
    nome VARCHAR(45) NOT NULL,
    localizacao TEXT NOT NULL,
@@ -54,8 +54,9 @@ CREATE TABLE sala_de_aula (
   );
 
 
-CREATE TABLE maquina (
+CREATE TABLE IF NOT EXISTS maquina (
    idMaquina INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+   hostName VARCHAR(80) NOT NULL,
    nome VARCHAR(45),
    modelo VARCHAR(45) NULL,
    numero_serie VARCHAR(15) NULL,
@@ -63,6 +64,7 @@ CREATE TABLE maquina (
    sistema_operacional VARCHAR(15) NULL,
    arquitetura INT NULL,
    fabricante VARCHAR(50) NULL,
+   stt_maquina VARCHAR(20),
    ligada CHAR(1) NULL,
    endereco_ipv4 VARCHAR(16), 
    endereco_mac VARCHAR(18), 
@@ -73,7 +75,9 @@ CREATE TABLE maquina (
    CONSTRAINT const_maquina_fkEmpresa FOREIGN KEY (fk_empresa)  REFERENCES empresa(idEmpresa) ON DELETE CASCADE
 );
 
-CREATE TABLE historico_usuarios (
+
+
+CREATE TABLE IF NOT EXISTS historico_usuarios (
   idHistoricoUsuario INT NOT NULL AUTO_INCREMENT,
   fk_usuario INT NOT NULL,
   fk_maquina INT NOT NULL,
@@ -82,7 +86,7 @@ CREATE TABLE historico_usuarios (
   CONSTRAINT FOREIGN KEY (fk_usuario) REFERENCES usuario (idUsuario) ON DELETE CASCADE,
   CONSTRAINT fk_historicoUsuarios_maquina FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina) ON DELETE CASCADE);
   
-SELECT * FROM janela;
+
 CREATE TABLE IF NOT EXISTS janela (
   idJanela INT NOT NULL AUTO_INCREMENT,
   pid INT NULL,
@@ -97,98 +101,102 @@ CREATE TABLE IF NOT EXISTS janela (
   CONSTRAINT const_fk_maquina FOREIGN KEY (fk_maquina)REFERENCES maquina (idMaquina) ON DELETE CASCADE
 );
 
-
 CREATE TABLE IF NOT EXISTS tipo_componente (
-  `idTipoComponente` INT NOT NULL AUTO_INCREMENT,
-  `nome` VARCHAR(45) NULL,
-  `decricao` TEXT NULL,
-  PRIMARY KEY (`idTipoComponente`));
+  idTipoComponente INT NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(45) NULL,
+  decricao TEXT NULL,
+  PRIMARY KEY (idTipoComponente));
+
 
 CREATE TABLE IF NOT EXISTS componente (
-  `idComponente` INT NOT NULL AUTO_INCREMENT,
-  `nome` VARCHAR(255) NULL,
-  `modelo` VARCHAR(255) NULL,
-  `total` DECIMAL(6,2) NULL,
-  `fk_maquina` INT NOT NULL,
-  `fk_tipoComponente` INT NOT NULL,
-  PRIMARY KEY (`idComponente`, `fk_maquina`, `fk_tipoComponente`),
-  INDEX `fk_maquina_has_componente_componente1_idx` (`fk_tipoComponente` ASC) VISIBLE,
-  INDEX `fk_maquina_has_componente_maquina1_idx` (`fk_maquina` ASC) VISIBLE,
-  CONSTRAINT `fk_maquina_has_componente_maquina1`
-    FOREIGN KEY (`fk_maquina`)
-    REFERENCES maquina (`idMaquina`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_maquina_has_componente_componente1`
-    FOREIGN KEY (`fk_tipoComponente`)
-    REFERENCES tipo_componente (`idTipoComponente`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE);
+  idComponente INT NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(255) NULL,
+  modelo VARCHAR(255) NULL,
+  total DECIMAL(6,2) NULL,
+  fk_maquina INT NOT NULL,
+  fk_tipoComponente INT NOT NULL,
+  PRIMARY KEY (idComponente, fk_maquina, fk_tipoComponente),
+  CONSTRAINT fk_componente_fk_maquina FOREIGN KEY (fk_maquina)
+    REFERENCES maquina (idMaquina) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_componente_tipoComponente FOREIGN KEY (fk_tipoComponente)
+    REFERENCES tipo_componente (idTipoComponente) ON DELETE CASCADE ON UPDATE CASCADE
+);					
 
-  CREATE TABLE tipo_dados (
-  idTipoDados INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+
+CREATE TABLE IF NOT EXISTS tipo_dados (
+  idTipoDados INT NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NULL,
-  limite_inicial DECIMAL(5,2) NULL,
-  limite_final DECIMAL(5,2) NULL
-  );
+  fk_componente INT,
+  fk_maquina INT,
+  fk_tipoComponente INT ,
+  PRIMARY KEY (idTipoDados, fk_componente, fk_maquina, fk_tipoComponente),
+  CONSTRAINT fk_tipo_dados_componente FOREIGN KEY (fk_componente)
+  REFERENCES componente (idComponente) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_tipo_dados_maquina FOREIGN KEY (fk_maquina)
+  REFERENCES componente (fk_maquina) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_tipo_dados_tipoComponente FOREIGN KEY (fk_tipoComponente)
+  REFERENCES componente (fk_tipoComponente) ON DELETE CASCADE ON UPDATE CASCADE
+  );  
   
-  
-CREATE TABLE IF NOT EXISTS captura_dados (
-  `idCaptura` INT NOT NULL AUTO_INCREMENT,
-  `valor_monitorado` DECIMAL(5,2) NULL,
-  `dt_hora` DATETIME NULL,
-  `fk_tiposDados` INT NOT NULL,
-  `fk_maquina` INT NOT NULL,
-  `fk_componente` INT NOT NULL,
-  `fk_tipoComponente` INT NOT NULL,
-  PRIMARY KEY (`idCaptura`, `fk_tiposDados`, `fk_maquina`, `fk_componente`, `fk_tipoComponente`),
-  CONSTRAINT `fk_componente_has_tipoDados_tipoDados` FOREIGN KEY (`fk_tiposDados`) REFERENCES tipo_dados (`idTipoDados`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_captura_dados_maquina` FOREIGN KEY (`fk_maquina` )
-    REFERENCES componente (`fk_maquina` ),
-  CONSTRAINT `fk_captura_dados_tipo_componente` FOREIGN KEY ( `fk_tipoComponente` )
-    REFERENCES componente (`fk_tipoComponente`),
-  CONSTRAINT `fk_captura_dados_componente` FOREIGN KEY (`fk_componente`)
-    REFERENCES componente (`idComponente`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-    
-  
-CREATE TABLE tipo_notificacao(
+CREATE TABLE IF NOT EXISTS tipo_notificacao(
   idTipo_notificacao INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NULL,
   cor VARCHAR(6) NULL
 );
 
+CREATE TABLE IF NOT EXISTS limites (
+   limite DECIMAL(6,2) NULL,
+   fk_notificacao INT NOT NULL,
+   fk_tipoComponente INT NOT NULL,
+  PRIMARY KEY (fk_notificacao, fk_tipoComponente),
+  CONSTRAINT fk_limites_fk_noticiacao FOREIGN KEY (fk_notificacao)
+  REFERENCES tipo_notificacao (idTipo_notificacao) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT  fk_limites_tipoComp FOREIGN KEY (fk_tipoComponente) REFERENCES tipo_componente (idTipoComponente)
+  ON DELETE CASCADE ON UPDATE CASCADE);
+  
+CREATE TABLE IF NOT EXISTS captura_dados (
+  idCaptura INT NOT NULL AUTO_INCREMENT,
+  valor_monitorado DECIMAL(5,2) NULL,
+  dt_hora DATETIME NULL,
+  fk_tipoDados INT NOT NULL,
+  fk_componente INT NOT NULL,
+  fk_maquina INT NOT NULL,
+  fk_tipoComponente INT NOT NULL,
+  PRIMARY KEY (idCaptura, fk_tipoDados, fk_componente, fk_maquina, fk_tipoComponente),
+  CONSTRAINT fk_captura_tipo_dados FOREIGN KEY (fk_tipoDados)
+    REFERENCES tipo_dados (idTipoDados) 
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_captura_componente FOREIGN KEY (fk_componente)
+    REFERENCES tipo_dados (fk_componente) 
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_captura_maquina FOREIGN KEY (fk_maquina)
+    REFERENCES tipo_dados (fk_maquina)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_captura_tipoComponente FOREIGN KEY (fk_tipoComponente)
+    REFERENCES tipo_dados (fk_tipoComponente) 
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS notificacao (
-  `data_hora` DATETIME NULL,
-  `fk_tipoNotificacao` INT NOT NULL,
-  `fk_captura_tiposDados` INT NOT NULL,
-  `fk_captura_maquina` INT NOT NULL,
-  `fk_captura_componente` INT NOT NULL,
-  `fk_captura` INT NOT NULL,
-  `fk_tipoComponente` INT NULL,
-  PRIMARY KEY (`fk_tipoNotificacao`, `fk_captura_tiposDados`, `fk_captura_maquina`, `fk_captura_componente`, `fk_captura`),
-  CONSTRAINT `fk_notificacao_tipo_notificacao1`
-    FOREIGN KEY (`fk_tipoNotificacao`) 
-    REFERENCES tipo_notificacao (`idTipo_notificacao`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_notificacao_captura_dados`
-    FOREIGN KEY (`fk_captura`)
-    REFERENCES captura_dados (`idCaptura`) ON DELETE NO ACTION ON UPDATE NO ACTION, 
-  CONSTRAINT `fk_notificacao_tipoDados`
-    FOREIGN KEY (`fk_captura_tiposDados`)
-    REFERENCES captura_dados (`fk_tiposDados`) ON DELETE NO ACTION ON UPDATE NO ACTION, 
-  CONSTRAINT `fk_notificacao_maquina`
-    FOREIGN KEY ( `fk_captura_maquina`)
-    REFERENCES captura_dados (`fk_maquina` ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_notificacao_componente`
-    FOREIGN KEY (`fk_captura_componente`)
-    REFERENCES captura_dados (`fk_componente`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_notificacao_tipoComonente`
-    FOREIGN KEY (`fk_tipoComponente`)
-    REFERENCES captura_dados (`fk_tipoComponente`) ON DELETE NO ACTION ON UPDATE NO ACTION
-    );
+  data_hora DATETIME NULL,
+  fk_idCaptura INT NOT NULL,
+  fk_tipoDados INT NOT NULL,
+  fk_componente INT NOT NULL,
+  fk_maquina INT NOT NULL,
+  fk_tipoComponente INT NOT NULL,
+  fk_tipoNotificacao INT NOT NULL,
+  PRIMARY KEY (fk_idCaptura, fk_tipoDados, fk_componente, fk_maquina, fk_tipoComponente, fk_tipoNotificacao),
+  CONSTRAINT fk_notificacao_captura FOREIGN KEY (fk_idCaptura) REFERENCES captura_dados (idCaptura)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_notificacao_tipoDados FOREIGN KEY (fk_tipoDados) REFERENCES captura_dados (fk_tipoDados)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_notificacao_componente FOREIGN KEY (fk_componente) REFERENCES captura_dados (fk_componente)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_notificacao_maquina FOREIGN KEY (fk_maquina) REFERENCES captura_dados (fk_maquina)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_notificacao_tipoNot FOREIGN KEY (fk_tipoNotificacao)
+    REFERENCES tipo_notificacao (idTipo_notificacao) ON DELETE CASCADE ON UPDATE CASCADE);
+    
 
 
 -- PROCEDURE EXIBIR SALAS DE AULA
@@ -225,15 +233,15 @@ CREATE PROCEDURE ultimo_valor_captura(componenteVar INT, tipoDados INT, maquina 
 BEGIN 
 	SELECT c.nome as componente, td.nome as dadoCapturado, dt_hora, valor_monitorado as valor   
 	FROM captura_dados  AS cd JOIN tipo_componente AS c ON c.idTipoComponente = cd.fk_componente
-	JOIN  tipo_dados AS td ON td.idTipoDados = cd.fk_tiposDados
-	WHERE fk_tipoComponente = componenteVar AND fk_maquina = maquina AND fk_tiposDados = tipoDados ORDER BY dt_hora DESC 
+	JOIN  tipo_dados AS td ON td.idTipoDados = cd.fk_tipoDados
+	WHERE fk_tipoComponente = componenteVar AND fk_maquina = maquina AND fk_tipoDados = tipoDados ORDER BY dt_hora DESC 
 	LIMIT 1;
 END $$
 
 DELIMITER $$
 CREATE PROCEDURE graficos_especificos(componenteVar INT, maquinaVar INT, limitVar INT)
 BEGIN 
-	SELECT 	valor_monitorado as valor, dt_hora FROM captura_dados 
+	SELECT * FROM captura_dados 
     WHERE fk_maquina = maquinaVar AND fk_tipoComponente = componenteVar 
     ORDER BY dt_hora DESC LIMIT limitVar;
 END $$
@@ -244,5 +252,24 @@ BEGIN
 	select * from componente WHERE fk_maquina = maquinaVar AND fk_tipoComponente = componenteVar;
 END $$
 
+DELIMITER $$
+CREATE PROCEDURE info_notificacao(capturaVar INT)
+BEGIN 
+	SELECT maquina.nome AS maquina, sala.nome AS salaDeAula, tpComp.nome AS tipoComponente FROM notificacao
+	JOIN maquina ON maquina.idMaquina = notificacao.fk_maquina
+    JOIN sala_de_aula AS sala ON sala.idSala = maquina.fk_sala
+    JOIN tipo_componente AS tpComp ON tpComp.idTipoComponente = notificacao.fk_tipoNotificacao 
+    WHERE fk_idCaptura = capturaVar;
+END $$
+
+DELIMITER $$
+CREATE PROCEDURE info_limites(idNotVar INT, idTipoComVar INT)
+BEGIN 
+	SELECT limite FROM limites WHERE fk_notificacao = idNotVar AND fk_tipoComponente = idTipoComVar;
+END $$
+
 -- INSERT TIPO COMPONENTE
-INSERT INTO tipo_componente (`nome`) VALUES ("Processador"), ("Ram"), ("Disco");
+INSERT INTO tipo_componente (nome) VALUES ("Processador"), ("Ram"), ("Disco");
+INSERT INTO tipo_notificacao (nome, cor) VALUES ('Aviso', 'FF0000'), ('Urgente', 'ffd700');
+INSERT INTO limites (fk_notificacao, fk_tipoComponente) VALUES (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2,3);
+

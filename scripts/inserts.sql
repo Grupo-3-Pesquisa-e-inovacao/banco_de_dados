@@ -12,9 +12,3 @@ INSERT INTO usuario (`email`, `senha`, `nome`, `cargo`, `cadastrar`, `leitura`, 
 INSERT INTO sala_de_aula (nome, localizacao, fk_usuario, fk_empresa) 
 	VALUES ("Sala 1", "1° andar", 2, 1),
 	       ("Sala 5", "6° andar, lado B", 3, 1);
-
-INSERT INTO tipo_dados(`nome`) VALUES ("Uso");
-                               
-
-
-

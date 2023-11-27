@@ -74,3 +74,41 @@ SELECT * FROM sala_de_aula;
 TRUNCATE TABLE janela;
 SELECT * FROM janela;
 
+SELECT * FROM tipo_dados;
+SELECT * FROM  tipo_notificacao;
+
+-- NÃO ESQUECE DE COLOCAR NO JAVAAAA
+INSERT INTO limites (fk_notificacao, fk_tipoDados) VALUES (1, 5), (1, 6), (1, 7), (2, 5), (2, 6), (2, 7);
+
+UPDATE limites SET limite = 10 WHERE fk_notificacao = 1 AND fk_tipoDados = 5;
+
+
+INSERT INTO notificacao (data_hora, fk_idCaptura, fk_tipoDados, fk_componente, fk_maquina, fk_tipoComponente, fk_tipoNotificacao) 
+VALUES (now(), NULL, NULL, NULL, NULL, NULL, NULL);
+
+SELECT * FROM notificacao;
+SELECT COUNT(*) as totalDia, 
+       HOUR(data_hora) as hora 
+FROM notificacao 
+WHERE fk_tipoNotificacao = 2 
+GROUP BY hora
+LIMIT 10;
+UPDATE notificacao SET fk_tipoNotificacao = 1 WHERE fk_tipoDados = 5;
+
+SELECT COUNT(*) as total, 
+    HOUR(data_hora) as hora, fk_tipoNotificacao as tipoNot
+FROM notificacao 
+GROUP BY hora, tipoNot , data_hora
+ORDER BY data_hora
+LIMIT 10;
+DESC maquina;
+SELECT count(*) as total, stt_maquina AS stt 
+FROM maquina WHERE fk_empresa = 1 
+GROUP BY stt;
+
+SELECT count(*) as total, ligada 
+FROM maquina WHERE fk_empresa = 1 
+GROUP BY ligada;
+
+UPDATE maquina SET stt_maquina = "OK" WHERE idMaquina = 4;
+UPDATE maquina SET ligada = "S" WHERE idMaquina = 4;
