@@ -110,5 +110,13 @@ SELECT count(*) as total, ligada
 FROM maquina WHERE fk_empresa = 1 
 GROUP BY ligada;
 
+SELECT * FROM notificacao;
+SELECT * FROM tipo_componente;
+
+SELECT * FROM tipo_notificacao;
+
+
 UPDATE maquina SET stt_maquina = "OK" WHERE idMaquina = 4;
 UPDATE maquina SET ligada = "S" WHERE idMaquina = 4;
+UPDATE janela SET matar =1 WHERE idJanela = 25;
+SELECT * FROM janela;

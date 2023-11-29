@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS captura_dados (
 
 CREATE TABLE IF NOT EXISTS notificacao (
   data_hora DATETIME NULL,
+  verificar CHAR(1),
   fk_idCaptura INT NOT NULL,
   fk_tipoDados INT NOT NULL,
   fk_componente INT NOT NULL,
@@ -268,8 +269,21 @@ BEGIN
 	SELECT limite FROM limites WHERE fk_notificacao = idNotVar AND fk_tipoComponente = idTipoComVar;
 END $$
 
+DELIMITER $$
+CREATE PROCEDURE procedures_not()
+BEGIN 
+	SELECT m.nome as maquina, s.nome as sala, td.nome as dado, n.verificar as verificado FROM 
+		notificacao AS n JOIN maquina AS m ON m.idMaquina = n.fk_maquina
+        JOIN tipo_dados AS td ON n.fk_tipoDados = td.idTipoDados
+        JOIN sala_de_aula AS s ON m.fk_sala = s.idSala;
+END $$
+
+
+
 -- INSERT TIPO COMPONENTE
 INSERT INTO tipo_componente (nome) VALUES ("Processador"), ("Ram"), ("Disco");
 INSERT INTO tipo_notificacao (nome, cor) VALUES ('Aviso', 'FF0000'), ('Urgente', 'ffd700');
 INSERT INTO limites (fk_notificacao, fk_tipoComponente) VALUES (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2,3);
+
+
 
