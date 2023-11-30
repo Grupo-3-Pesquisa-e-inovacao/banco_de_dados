@@ -138,19 +138,19 @@ CREATE TABLE IF NOT EXISTS tipo_dados (
   REFERENCES componente (fk_tipoComponente) ON DELETE CASCADE ON UPDATE CASCADE
   );  
   
-CREATE TABLE IF NOT EXISTS tipo_notificacao(
-  idTipo_notificacao INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS tipo_alerta(
+  idTipo_Alerta INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NULL,
   cor VARCHAR(6) NULL
 );
 
 CREATE TABLE IF NOT EXISTS limites (
    limite DECIMAL(6,2) NULL,
-   fk_notificacao INT NOT NULL,
+   fk_TipoAlerta INT NOT NULL,
    fk_tipoComponente INT NOT NULL,
-  PRIMARY KEY (fk_notificacao, fk_tipoComponente),
-  CONSTRAINT fk_limites_fk_noticiacao FOREIGN KEY (fk_notificacao)
-  REFERENCES tipo_notificacao (idTipo_notificacao) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (fk_TipoAlerta, fk_tipoComponente),
+  CONSTRAINT fk_limites_fk_noticiacao FOREIGN KEY (fk_TipoAlerta)
+  REFERENCES tipo_alerta (idTipo_Alerta) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT  fk_limites_tipoComp FOREIGN KEY (fk_tipoComponente) REFERENCES tipo_componente (idTipoComponente)
   ON DELETE CASCADE ON UPDATE CASCADE);
   
@@ -177,28 +177,18 @@ CREATE TABLE IF NOT EXISTS captura_dados (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS notificacao (
-  data_hora DATETIME NULL,
-  verificar CHAR(1),
-  fk_idCaptura INT NOT NULL,
-  fk_tipoDados INT NOT NULL,
-  fk_componente INT NOT NULL,
-  fk_maquina INT NOT NULL,
-  fk_tipoComponente INT NOT NULL,
-  fk_tipoNotificacao INT NOT NULL,
-  PRIMARY KEY (fk_idCaptura, fk_tipoDados, fk_componente, fk_maquina, fk_tipoComponente, fk_tipoNotificacao),
-  CONSTRAINT fk_notificacao_captura FOREIGN KEY (fk_idCaptura) REFERENCES captura_dados (idCaptura)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_notificacao_tipoDados FOREIGN KEY (fk_tipoDados) REFERENCES captura_dados (fk_tipoDados)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_notificacao_componente FOREIGN KEY (fk_componente) REFERENCES captura_dados (fk_componente)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_notificacao_maquina FOREIGN KEY (fk_maquina) REFERENCES captura_dados (fk_maquina)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_notificacao_tipoNot FOREIGN KEY (fk_tipoNotificacao)
-    REFERENCES tipo_notificacao (idTipo_notificacao) ON DELETE CASCADE ON UPDATE CASCADE);
-    
 
+CREATE TABLE IF NOT EXISTS alerta (
+  idAlerta INT NOT NULL AUTO_INCREMENT,
+  data_hora DATETIME NULL,
+  verificado CHAR(1) NULL,
+  fk_tipoAlerta INT NOT NULL,
+  fk_maquina INT NOT NULL,
+  PRIMARY KEY (idAlerta, fk_tipoAlerta, fk_maquina),
+  CONSTRAINT fk_notificacao_tipo_notificacao1 FOREIGN KEY (fk_tipoAlerta) REFERENCES tipo_alerta (idTipo_Alerta)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_notificacao_maquina1 FOREIGN KEY (fk_maquina) REFERENCES maquina (idMaquina)  
+	ON DELETE CASCADE ON UPDATE CASCADE);
 
 -- PROCEDURE EXIBIR SALAS DE AULA
 DELIMITER $$
@@ -266,24 +256,24 @@ END $$
 DELIMITER $$
 CREATE PROCEDURE info_limites(idNotVar INT, idTipoComVar INT)
 BEGIN 
-	SELECT limite FROM limites WHERE fk_notificacao = idNotVar AND fk_tipoComponente = idTipoComVar;
+	SELECT limite FROM limites WHERE fk_TipoAlerta = idNotVar AND fk_tipoComponente = idTipoComVar;
 END $$
 
 DELIMITER $$
-CREATE PROCEDURE procedures_not()
+CREATE PROCEDURE procedures_not(empresaVar INT)
 BEGIN 
-	SELECT m.nome as maquina, s.nome as sala, td.nome as dado, n.verificar as verificado FROM 
-		notificacao AS n JOIN maquina AS m ON m.idMaquina = n.fk_maquina
-        JOIN tipo_dados AS td ON n.fk_tipoDados = td.idTipoDados
-        JOIN sala_de_aula AS s ON m.fk_sala = s.idSala;
+	SELECT m.nome as maquina, s.nome as sala, td.nome as dado, a.verificado as verificado FROM 
+		alerta AS a JOIN maquina AS m ON m.idMaquina = a.fk_maquina
+        JOIN tipo_dados AS td ON a.fk_tipoDados = td.idTipoDados
+        JOIN sala_de_aula AS s ON m.fk_sala = s.idSala WHERE fk_empresa = empresaVar;
 END $$
 
 
 
 -- INSERT TIPO COMPONENTE
 INSERT INTO tipo_componente (nome) VALUES ("Processador"), ("Ram"), ("Disco");
-INSERT INTO tipo_notificacao (nome, cor) VALUES ('Aviso', 'FF0000'), ('Urgente', 'ffd700');
-INSERT INTO limites (fk_notificacao, fk_tipoComponente) VALUES (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2,3);
+INSERT INTO tipo_alerta (nome, cor) VALUES ('Aviso', 'FF0000'), ('Urgente', 'ffd700');
+INSERT INTO limites (fk_TipoAlerta, fk_tipoComponente) VALUES (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2,3);
 
 
 
