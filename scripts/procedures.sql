@@ -38,7 +38,7 @@ BEGIN
 	WHERE fk_tipoComponente = componenteVar AND fk_maquina = maquina AND fk_tiposDados = tipoDados ORDER BY dt_hora DESC 
 	LIMIT 1;
 END $$
-
+procedures_not
 DELIMITER $$
 CREATE PROCEDURE graficos_especificos(componenteVar INT, maquinaVar INT, limitVar INT)
 BEGIN 

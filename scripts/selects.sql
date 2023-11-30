@@ -111,12 +111,42 @@ FROM maquina WHERE fk_empresa = 1
 GROUP BY ligada;
 
 SELECT * FROM notificacao;
+
+
+   SELECT COUNT(*) as total, 
+    HOUR(data_hora) as hora, fk_tipoNotificacao as tipoNot
+    FROM notificacao 
+    GROUP BY hora, tipoNot , ;
+    
 SELECT * FROM tipo_componente;
+use safe_monitor;
+DESC notificacao;
+CALL procedures_not();
+SELECT * FROM captura_dados;
 
-SELECT * FROM tipo_notificacao;
-
-
+DROP DATABASE safe_monitor;
 UPDATE maquina SET stt_maquina = "OK" WHERE idMaquina = 4;
 UPDATE maquina SET ligada = "S" WHERE idMaquina = 4;
 UPDATE janela SET matar =1 WHERE idJanela = 25;
-SELECT * FROM janela;
+SELECT * FROM alerta;
+
+CALL procedures_not();
+
+SELECT * FROM alerta;
+
+UPDATE alerta SET verificado = "S" WHERE idAlerta = 3;
+
+CALL procedures_not(1);
+
+SELECT
+  HOUR(data_hora) as hora,
+  (SELECT COUNT(*) FROM alerta WHERE fk_tipoAlerta = 1 AND HOUR(data_hora) = hora) AS totalAviso,
+  (SELECT COUNT(*) FROM alerta WHERE fk_tipoAlerta = 2 AND HOUR(data_hora) = hora) AS totalUrgente
+FROM alerta
+GROUP BY hora;
+ SELECT * FROM alerta WHERE fk_maquina = 1 AND fk_tipoAlerta = 1;
+
+
+TRUNCATE TABLE alerta;
+    select  HOUR(data_hora) as hora, count(*) from alerta where fk_tipoAlerta = 1 GROUP BY hora;
+    select  HOUR(data_hora) as hora, count(*) from alerta where fk_tipoAlerta = 2 GROUP BY hora;

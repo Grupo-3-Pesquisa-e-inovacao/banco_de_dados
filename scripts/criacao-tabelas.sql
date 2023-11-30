@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS notificacao (
   CONSTRAINT fk_tipoDados_limites FOREIGN KEY (fk_limites_tipoDados)
     REFERENCES limites (fk_tipoDados) ON DELETE CASCADE ON UPDATE CASCADE);
 
-
+DROP TABLE notificacao;
 
 
 

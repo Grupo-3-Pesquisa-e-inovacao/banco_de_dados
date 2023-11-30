@@ -262,11 +262,12 @@ END $$
 DELIMITER $$
 CREATE PROCEDURE procedures_not(empresaVar INT)
 BEGIN 
-	SELECT m.nome as maquina, s.nome as sala, td.nome as dado, a.verificado as verificado FROM 
+	SELECT m.stt_maquina as stt, m.nome as maquina, s.nome as sala, a.verificado as verificado FROM 
 		alerta AS a JOIN maquina AS m ON m.idMaquina = a.fk_maquina
-        JOIN tipo_dados AS td ON a.fk_tipoDados = td.idTipoDados
-        JOIN sala_de_aula AS s ON m.fk_sala = s.idSala WHERE fk_empresa = empresaVar;
+        JOIN sala_de_aula AS s ON m.fk_sala = s.idSala WHERE m.fk_empresa = empresaVar;
 END $$
+
+
 
 
 
